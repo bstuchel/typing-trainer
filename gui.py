@@ -18,7 +18,7 @@ class Gui:
     DARK_BLUE_TEXT = (27, 31, 38)
 
     # Define fonts
-    FONT_PATHNAME = "res/Fonts/RobotoMono-Medium.ttf"
+    FONT_PATHNAME = "res/fonts/RobotoMono-Medium.ttf"
     FONT = pygame.freetype.Font(FONT_PATHNAME, 30)
     FONT.origin = True
 
