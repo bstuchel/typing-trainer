@@ -16,6 +16,7 @@ class Gui:
     # Define colors
     BLUE_BACKGROUND = (36, 41, 51)
     DARK_BLUE_TEXT = (27, 31, 38)
+    CURSOR = (214, 220, 231)            # White
 
     # Define fonts
     FONT_PATHNAME = "res/fonts/RobotoMono-Medium.ttf"
@@ -39,10 +40,10 @@ class Gui:
 
     def create_prompt_surf(self):
         prompt_surface = pygame.Surface((self.DIS_WIDTH // 2, self.DIS_HEIGHT // 4))
-        prompt_surface.fill(self.BLUE_BACKGROUND)
         return prompt_surface
 
     def update_display(self):
+        self.prompt_surf.fill(self.BLUE_BACKGROUND)
         x = 0
         # render each letter of the current sentence one by one
         for letter, metric in zip(self.prompt.char_list, self.metrics):

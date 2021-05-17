@@ -11,8 +11,7 @@ import time
 class Game:
     def __init__(self):
         self.__lexicon = self.__get_lexicon()
-        self.chosen_words = []
-        self.choose_words()
+        self.chosen_words = self.choose_words()
         self.start_time = 0
         self.stop_time = 1
 
@@ -23,10 +22,12 @@ class Game:
         return lexicon
 
     def choose_words(self):
-        while len(self.chosen_words) < 5:
+        chosen_words = []
+        while len(chosen_words) < 7:
             choice = random.choice(self.__lexicon)
-            if len(self.chosen_words) == 0 or choice != self.chosen_words[-1]:  # No back to back words
-                self.chosen_words.append(choice)
+            if len(chosen_words) == 0 or choice != chosen_words[-1]:  # No back to back words
+                chosen_words.append(choice)
+        return chosen_words
 
     def clear_words(self):
         self.chosen_words.clear()

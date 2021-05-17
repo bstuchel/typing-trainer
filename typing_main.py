@@ -4,6 +4,7 @@ File: typing_main.py
 This program runs the typing test application using pygame.
 
 To Do:
+ - Add cursor
  - Add timer and display it on screen
  - Increase word length and wrap text onto next line
  - Add results screen after timer expires
@@ -40,7 +41,11 @@ def main():
                     # Start game timer
                     game.start_clock()
                     time_started = True
-                if event.unicode == gui.prompt.char_list[cur_idx].ch.lower():
+                if event.key == pygame.K_BACKSPACE:
+                    # Update the display for a backspace
+                    gui.prompt.char_list[cur_idx-1].set_default()
+                    if cur_idx != 0: cur_idx -= 1
+                elif event.unicode == gui.prompt.char_list[cur_idx].ch.lower():
                     # Update the display for correct letter
                     gui.prompt.char_list[cur_idx].set_correct()
                     cur_idx += 1
