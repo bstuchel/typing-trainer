@@ -4,6 +4,7 @@ File: game.py
 This file contains the typing game logic.
 """
 import json
+from letter import Letter
 import random
 import time
 
@@ -12,6 +13,11 @@ class Game:
     def __init__(self):
         self.__lexicon = self.__get_lexicon()
         self.chosen_words = self.choose_words()
+        # Prompt data
+        self.prompt_text = self.get_prompt()
+        self.prompt_char_list = [Letter(ch) for ch in self.prompt_text]
+        self.prompt_size = len(self.prompt_text.split())
+        # Timing data
         self.start_time = 0
         self.stop_time = 1
 
@@ -23,9 +29,9 @@ class Game:
 
     def choose_words(self):
         chosen_words = []
-        while len(chosen_words) < 7:
+        while len(chosen_words) < 15:
             choice = random.choice(self.__lexicon)
-            if len(chosen_words) == 0 or choice != chosen_words[-1]:  # No back to back words
+            if len(chosen_words) == 0 or choice != chosen_words[-1]:  # Avoid back to back words
                 chosen_words.append(choice)
         return chosen_words
 
@@ -34,13 +40,8 @@ class Game:
 
     def get_prompt(self):
         prompt = ""
-        line_length = 0
         for word in self.chosen_words:
-            if line_length + len(word) + 1 > 50:
-                prompt += "\n"
-                line_length = 0
             prompt += word + ' '
-            line_length += len(word) + 1
         return prompt[:-1]
 
     def start_clock(self):
