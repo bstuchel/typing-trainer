@@ -4,11 +4,10 @@ File: typing_main.py
 This program runs the typing test application using pygame.
 
 To Do:
- - Allow the user to enter capital letters (pressing shift counts as letter currently)
  - Add cursor
  - Add timer and display it on screen
- - Add results screen after timer expires
- - Add option to play agains
+ - Show results on screen after timer expires
+ - Add option to play again
 """
 from game import Game
 from gui import Gui
@@ -45,11 +44,11 @@ def main():
                     # Update the display for a backspace
                     game.prompt_char_list[cur_idx-1].set_default()
                     if cur_idx != 0: cur_idx -= 1
-                elif event.unicode == game.prompt_char_list[cur_idx].ch.lower():
+                elif event.unicode == game.prompt_char_list[cur_idx].ch:
                     # Update the display for correct letter
                     game.prompt_char_list[cur_idx].set_correct()
                     cur_idx += 1
-                else:
+                elif event.unicode != '':
                     # Update the display for incorrect letter
                     game.prompt_char_list[cur_idx].set_incorrect()
                     cur_idx += 1

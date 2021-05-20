@@ -2,6 +2,13 @@
 File: gui.py
 
 This file contains the gui class for the typing application.
+
+To Do:
+ In order to improve efficiency, the entire screen doesn't need to be redrawn for 
+ every event in the event queue.  We could store the location of each letter on 
+ the screen and just update the letter at that location when it needs to be updated.  
+ The letter class could contain a property for it's location which could be used 
+ when it needs to be redrawn.
 """
 import pygame
 import pygame.freetype
