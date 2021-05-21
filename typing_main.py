@@ -17,7 +17,6 @@ import pygame
 def main():
     game = Game()
     gui = Gui(game)
-    gui.update_display()
 
     # Initialize game loop
     running = True
@@ -25,7 +24,7 @@ def main():
     cur_idx = 0
 
     while running:
-        if cur_idx == len(game.prompt_char_list):
+        if cur_idx == len(game.prompt_text):
             game.stop_clock()
             raw_wpm = game.prompt_size/game.get_runtime()*60
             print("Raw WPM: %6.2f" % raw_wpm)
@@ -42,17 +41,18 @@ def main():
                     time_started = True
                 if event.key == pygame.K_BACKSPACE:
                     # Update the display for a backspace
-                    game.prompt_char_list[cur_idx-1].set_default()
+                    gui.char_list[cur_idx-1].set_default()
+                    gui.update_display(cur_idx-1)
                     if cur_idx != 0: cur_idx -= 1
-                elif event.unicode == game.prompt_char_list[cur_idx].ch:
+                elif event.unicode == game.prompt_text[cur_idx]:
                     # Update the display for correct letter
-                    game.prompt_char_list[cur_idx].set_correct()
+                    gui.char_list[cur_idx].set_correct()
                     cur_idx += 1
                 elif event.unicode != '':
                     # Update the display for incorrect letter
-                    game.prompt_char_list[cur_idx].set_incorrect()
+                    gui.char_list[cur_idx].set_incorrect()
                     cur_idx += 1
-                gui.update_display()
+                gui.update_display(cur_idx-1)
 
     pygame.quit()
 

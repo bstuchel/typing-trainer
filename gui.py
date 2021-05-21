@@ -2,14 +2,8 @@
 File: gui.py
 
 This file contains the gui class for the typing application.
-
-To Do:
- In order to improve efficiency, the entire screen doesn't need to be redrawn for 
- every event in the event queue.  We could store the location of each letter on 
- the screen and just update the letter at that location when it needs to be updated.  
- The letter class could contain a property for it's location which could be used 
- when it needs to be redrawn.
 """
+from letter import Letter
 import pygame
 import pygame.freetype
 pygame.init()
@@ -25,7 +19,7 @@ class Gui:
     # Define colors
     BLUE_BACKGROUND = (36, 41, 51)
     DARK_BLUE_TEXT = (27, 31, 38)
-    CURSOR = (214, 220, 231)            # White
+    CURSOR = (214, 220, 231)
 
     # Define fonts
     FONT_PATHNAME = "res/fonts/RobotoMono-Medium.ttf"
@@ -34,13 +28,15 @@ class Gui:
     FONT.origin = True
 
     def __init__(self, game):
+        # Display surfaces
         self.dis = self.create_display()
         self.prompt_surf = self.create_prompt_surf()
+        # Prompt information
         self.prompt_text = game.prompt_text
-        self.prompt_char_list = game.prompt_char_list
-        self.metrics = self.FONT.get_metrics(game.prompt_text)
         self.prompt_surf_rect = self.FONT.get_rect(game.prompt_text)
         self.baseline = self.prompt_surf_rect.y
+        self.char_list = self.get_char_list()
+        self.set_display()
 
     def create_display(self):
         dis = pygame.display.set_mode((self.DIS_WIDTH, self.DIS_HEIGHT))
@@ -52,20 +48,28 @@ class Gui:
         prompt_surface = pygame.Surface((self.PROMPT_SURF_WIDTH, self.PROMPT_SURF_HEIGHT))
         return prompt_surface
 
-    def update_display(self):
-        self.prompt_surf.fill(self.BLUE_BACKGROUND)
+    def get_char_list(self):
+        char_list = []
         x = 0
         y = self.baseline
-        # render each letter of the current sentence one by one
-        for letter, metric in zip(self.prompt_char_list, self.metrics):
-            if x >= self.PROMPT_SURF_WIDTH * 3 // 4 and letter.ch == ' ':
-                self.FONT.render_to(self.prompt_surf, (x, y), letter.ch, letter.color)
+        for ch in self.prompt_text:
+            char_list.append(Letter(ch, x, y))
+            x += self.FONT.get_metrics(ch)[0][4]
+            if (x >= self.PROMPT_SURF_WIDTH * 3 // 4 and ch == ' '):
                 x = 0
-                y += self.FONT_SIZE * 4 // 3    # Go to new line with margin of 1/3 text height
-                continue
-            # render the single letter
-            self.FONT.render_to(self.prompt_surf, (x, y), letter.ch, letter.color)
-            # and move the start position
-            x += metric[4]
+                y += self.FONT_SIZE * 4 // 3
+        return char_list                
+
+    def set_display(self):
+        self.prompt_surf.fill(self.BLUE_BACKGROUND)
+        for letter in self.char_list:
+            self.FONT.render_to(self.prompt_surf, letter.location, letter.ch, letter.color)
         self.dis.blit(self.prompt_surf, ((self.DIS_WIDTH//2) - (self.PROMPT_SURF_WIDTH//2), (self.DIS_HEIGHT//2) - (self.PROMPT_SURF_HEIGHT//2)))
         pygame.display.update()
+
+    def update_display(self, index):
+        if index != -1:
+            letter = self.char_list[index]
+            self.FONT.render_to(self.prompt_surf, letter.location, letter.ch, letter.color)
+            self.dis.blit(self.prompt_surf, ((self.DIS_WIDTH//2) - (self.PROMPT_SURF_WIDTH//2), (self.DIS_HEIGHT//2) - (self.PROMPT_SURF_HEIGHT//2)))
+            pygame.display.update()
