@@ -70,6 +70,8 @@ class Gui:
     def update_display(self, index):
         if index != -1:
             letter = self.char_list[index]
+            rect = pygame.Rect(letter.location[0], letter.location[1] - self.baseline, self.FONT.get_metrics(letter.ch)[0][4], self.FONT_SIZE * 4 // 3)
+            pygame.draw.rect(self.prompt_surf, self.BLUE_BACKGROUND, rect)
             self.FONT.render_to(self.prompt_surf, letter.location, letter.ch, letter.color)
             self.dis.blit(self.prompt_surf, ((self.DIS_WIDTH//2) - (self.PROMPT_SURF_WIDTH//2), (self.DIS_HEIGHT//2) - (self.PROMPT_SURF_HEIGHT//2)))
             pygame.display.update()
