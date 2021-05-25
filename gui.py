@@ -23,19 +23,30 @@ class Gui:
 
     # Define fonts
     FONT_PATHNAME = "res/fonts/RobotoMono-Medium.ttf"
-    FONT_SIZE = 30
-    FONT = pygame.freetype.Font(FONT_PATHNAME, FONT_SIZE)
-    FONT.origin = True
+
+    PROMPT_FONT_SIZE = 30
+    PROMPT_FONT = pygame.freetype.Font(FONT_PATHNAME, PROMPT_FONT_SIZE)
+    PROMPT_FONT.origin = True
+
+    TIMER_FONT_SIZE = 100
+    TIMER_FONT = pygame.freetype.Font(FONT_PATHNAME, TIMER_FONT_SIZE)
+    TIMER_FONT.origin = False
 
     def __init__(self, game):
+        self.game = game
         # Display surfaces
         self.dis = self.create_display()
         self.prompt_surf = self.create_prompt_surf()
+        self.timer_surf = self.create_timer_surf()
         # Prompt information
         self.prompt_text = game.prompt_text
-        self.prompt_surf_rect = self.FONT.get_rect(game.prompt_text)
-        self.baseline = self.prompt_surf_rect.y
-        self.char_list = self.get_char_list()
+        self.prompt_surf_rect = self.PROMPT_FONT.get_rect(game.prompt_text)
+        self.prompt_baseline = self.prompt_surf_rect.y
+        self.prompt_location = ((self.DIS_WIDTH//2) - (self.PROMPT_SURF_WIDTH//2), (self.DIS_HEIGHT//2) - (self.PROMPT_SURF_HEIGHT//2))
+        self.char_list = self.get_char_list()   
+        # Timer information
+        self.timer_location = ((self.DIS_WIDTH//2) - (self.timer_surf.get_width()//2), (self.prompt_location[1]//2) - (self.timer_surf.get_height()//2))
+        # Initialize display
         self.set_display()
 
     def create_display(self):
@@ -48,30 +59,44 @@ class Gui:
         prompt_surface = pygame.Surface((self.PROMPT_SURF_WIDTH, self.PROMPT_SURF_HEIGHT))
         return prompt_surface
 
+    def create_timer_surf(self):
+        timer_surface = pygame.Surface((self.TIMER_FONT_SIZE * 2, self.TIMER_FONT_SIZE))
+        return timer_surface
+
     def get_char_list(self):
         char_list = []
         x = 0
-        y = self.baseline
+        y = self.prompt_baseline
         for ch in self.prompt_text:
             char_list.append(Letter(ch, x, y))
-            x += self.FONT.get_metrics(ch)[0][4]
+            x += self.PROMPT_FONT.get_metrics(ch)[0][4]
             if (x >= self.PROMPT_SURF_WIDTH * 3 // 4 and ch == ' '):
                 x = 0
-                y += self.FONT_SIZE * 4 // 3
+                y += self.PROMPT_FONT_SIZE * 4 // 3
         return char_list                
 
     def set_display(self):
+        self.timer_surf.fill(self.BLUE_BACKGROUND)
+        self.TIMER_FONT.render_to(self.timer_surf, (0, 0), str(self.game.time_remaining), self.DARK_BLUE_TEXT)
+        self.dis.blit(self.timer_surf, self.timer_location)
+
         self.prompt_surf.fill(self.BLUE_BACKGROUND)
         for letter in self.char_list:
-            self.FONT.render_to(self.prompt_surf, letter.location, letter.ch, letter.color)
-        self.dis.blit(self.prompt_surf, ((self.DIS_WIDTH//2) - (self.PROMPT_SURF_WIDTH//2), (self.DIS_HEIGHT//2) - (self.PROMPT_SURF_HEIGHT//2)))
+            self.PROMPT_FONT.render_to(self.prompt_surf, letter.location, letter.ch, letter.color)
+        self.dis.blit(self.prompt_surf, self.prompt_location)
         pygame.display.update()
 
-    def update_display(self, index):
+    def update_prompt(self, index):
         if index != -1:
             letter = self.char_list[index]
-            rect = pygame.Rect(letter.location[0], letter.location[1] - self.baseline, self.FONT.get_metrics(letter.ch)[0][4], self.FONT_SIZE * 4 // 3)
+            rect = pygame.Rect(letter.location[0], letter.location[1] - self.prompt_baseline, self.PROMPT_FONT.get_metrics(letter.ch)[0][4], self.PROMPT_FONT_SIZE * 4 // 3)
             pygame.draw.rect(self.prompt_surf, self.BLUE_BACKGROUND, rect)
-            self.FONT.render_to(self.prompt_surf, letter.location, letter.ch, letter.color)
+            self.PROMPT_FONT.render_to(self.prompt_surf, letter.location, letter.ch, letter.color)
             self.dis.blit(self.prompt_surf, ((self.DIS_WIDTH//2) - (self.PROMPT_SURF_WIDTH//2), (self.DIS_HEIGHT//2) - (self.PROMPT_SURF_HEIGHT//2)))
             pygame.display.update()
+
+    def update_timer(self):
+        self.timer_surf.fill(self.BLUE_BACKGROUND)
+        self.TIMER_FONT.render_to(self.timer_surf, (0, 0), str(self.game.time_remaining), self.DARK_BLUE_TEXT)
+        self.dis.blit(self.timer_surf, self.timer_location)
+        pygame.display.update()

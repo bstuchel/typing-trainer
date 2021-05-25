@@ -5,8 +5,6 @@ This file contains the typing game logic.
 """
 import json
 import random
-import time
-
 
 class Game:
     PROMPT_LENGTH = 15 
@@ -18,8 +16,7 @@ class Game:
         self.prompt_text = self.get_prompt()
         self.prompt_size = self.PROMPT_LENGTH
         # Timing data
-        self.start_time = 0
-        self.stop_time = 1
+        self.time_remaining = 30
 
     @staticmethod
     def __get_lexicon():
@@ -44,11 +41,13 @@ class Game:
             prompt += word + ' '
         return prompt[:-1]
 
-    def start_clock(self):
-        self.start_time = time.time()
+    def tick_timer(self):
+        self.time_remaining -= 1
+        if self.time_remaining == 0:
+            self.end_game()
 
-    def stop_clock(self):
-        self.stop_time = time.time()
+    def end_game(self):
+        pass
 
     def get_runtime(self):
         return self.stop_time - self.start_time
