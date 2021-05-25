@@ -9,10 +9,10 @@ To Do:
  - Show results on screen after timer expires
  - Add option to play again
 """
+from os import curdir
 from game import Game
 from gui import Gui
 import pygame
-# pygame.init()
 
 TIME_EVENT = pygame.USEREVENT
 
@@ -24,6 +24,7 @@ def main():
     running = True
     time_started = False
     cur_idx = 0
+    chars_typed = ""
 
     while running:
         if cur_idx == len(game.prompt_text):
@@ -40,14 +41,19 @@ def main():
                 # One second has passed, update timer
                 game.tick_timer()
                 gui.update_timer()
+                if game.time_remaining <= 0:
+                    game.end_game(chars_typed)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
                     if cur_idx != 0: cur_idx -= 1
                     gui.char_list[cur_idx].set_default()
                     gui.update_prompt(cur_idx)
+                    if chars_typed:
+                        chars_typed = chars_typed[:-1]
 
                 elif event.unicode != '':
+                    chars_typed += event.unicode
                     # The key pressed was a character
                     if not time_started:
                         # Start the game timer
@@ -60,7 +66,7 @@ def main():
                     else:
                         gui.char_list[cur_idx].set_incorrect()
 
-                    # Update display and move to the next letter
+                    # Update display
                     gui.update_prompt(cur_idx)
                     cur_idx += 1
 

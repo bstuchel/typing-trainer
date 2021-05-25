@@ -17,6 +17,7 @@ class Game:
         self.prompt_size = self.PROMPT_LENGTH
         # Timing data
         self.time_remaining = 30
+        self.words_typed = 0
 
     @staticmethod
     def __get_lexicon():
@@ -43,11 +44,9 @@ class Game:
 
     def tick_timer(self):
         self.time_remaining -= 1
-        if self.time_remaining == 0:
-            self.end_game()
 
-    def end_game(self):
-        pass
+    def end_game(self, typed):
+       pass
 
     def get_runtime(self):
         return self.stop_time - self.start_time
