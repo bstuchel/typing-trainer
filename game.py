@@ -7,7 +7,8 @@ import json
 import random
 
 class Game:
-    PROMPT_LENGTH = 15 
+    PROMPT_LENGTH = 45
+    GAME_LENGTH = 30
 
     def __init__(self):
         self.__lexicon = self.__get_lexicon()
@@ -16,7 +17,7 @@ class Game:
         self.prompt_text = self.get_prompt()
         self.prompt_size = self.PROMPT_LENGTH
         # Timing data
-        self.time_remaining = 30
+        self.time_remaining = self.GAME_LENGTH
         self.words_typed = 0
 
     @staticmethod
@@ -46,7 +47,19 @@ class Game:
         self.time_remaining -= 1
 
     def end_game(self, typed):
-       pass
+        correct_words = self.get_correct_words(typed)
+        print(f"WPM: {60 * correct_words // self.GAME_LENGTH}")
 
-    def get_runtime(self):
-        return self.stop_time - self.start_time
+    def get_correct_words(self, typed):
+        correct_words = 0
+        i = 0
+        while i < len(typed):
+            while i < len(typed) and typed[i] == self.prompt_text[i]:
+                if typed[i] == ' ':
+                   correct_words += 1
+                   break
+                i += 1
+            while i < len(typed) and typed[i] != ' ':
+                i += 1
+            i += 1
+        return correct_words

@@ -14,7 +14,7 @@ class Gui:
     DIS_HEIGHT = 720
 
     PROMPT_SURF_WIDTH = DIS_WIDTH * 2 // 3
-    PROMPT_SURF_HEIGHT = DIS_HEIGHT // 4
+    PROMPT_SURF_HEIGHT = DIS_HEIGHT // 2
 
     # Define colors
     BLUE_BACKGROUND = (36, 41, 51)
