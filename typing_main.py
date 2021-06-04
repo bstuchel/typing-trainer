@@ -8,28 +8,51 @@ To Do:
  - Add cursor
  - Add option to play again
 """
+from enum import Enum
 from game import Game
 from gui import Gui
 import pygame
 
 TIME_EVENT = pygame.USEREVENT
 
-def main():
-    game = Game()
-    gui = Gui(game)
+class GameState(Enum):
+    QUIT = -1
+    GAME = 0
+    SCORE = 1
 
-    # Initialize game loop
-    running = True
+def main():
+    pygame.init()
+
+    gui = Gui()
+    game_state = GameState.GAME
+
+    while True:
+        if game_state == GameState.GAME:
+            game_state = play(gui)
+
+        if game_state == GameState.SCORE:
+            game_state = score(gui)
+
+        if game_state == GameState.QUIT:
+            pygame.quit()
+            return        
+
+def play(gui):
+    game = Game()
+    gui.set_game(game)
+
+    # Initialize main loop
     time_started = False
     cur_idx = 0
     chars_typed = ""
 
-    while running:
+    # Main loop
+    while True:
 
         for event in pygame.event.get():
             # End loop if window is closed
             if event.type == pygame.QUIT:
-                running = False
+                return GameState.QUIT
 
             if event.type == TIME_EVENT:
                 # One second has passed, update timer
@@ -38,8 +61,7 @@ def main():
                 if game.time_remaining <= 0:
                     game.end_game(chars_typed)
                     gui.display_score(game.score)
-                    pygame.time.wait(5000)
-                    running = False
+                    return GameState.SCORE
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
