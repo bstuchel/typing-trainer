@@ -3,6 +3,7 @@ File: gui.py
 
 This file contains the gui class for the typing application.
 """
+from typing import SupportsAbs
 from letter import Letter
 import pygame
 import pygame.freetype
@@ -19,7 +20,7 @@ class Gui:
     # Define colors
     BLUE_BACKGROUND = (36, 41, 51)
     DARK_BLUE_TEXT = (27, 31, 38)
-    CURSOR = (214, 220, 231)
+    WHITE = (214, 220, 231)
 
     # Define fonts
     FONT_PATHNAME = "res/fonts/RobotoMono-Medium.ttf"
@@ -56,12 +57,10 @@ class Gui:
         return dis
 
     def create_prompt_surf(self):
-        prompt_surface = pygame.Surface((self.PROMPT_SURF_WIDTH, self.PROMPT_SURF_HEIGHT))
-        return prompt_surface
+        return pygame.Surface((self.PROMPT_SURF_WIDTH, self.PROMPT_SURF_HEIGHT))
 
     def create_timer_surf(self):
-        timer_surface = pygame.Surface((self.TIMER_FONT_SIZE * 2, self.TIMER_FONT_SIZE))
-        return timer_surface
+        return pygame.Surface((self.TIMER_FONT_SIZE * 2, self.TIMER_FONT_SIZE))
 
     def get_char_list(self):
         char_list = []
@@ -99,4 +98,13 @@ class Gui:
         self.timer_surf.fill(self.BLUE_BACKGROUND)
         self.TIMER_FONT.render_to(self.timer_surf, (0, 0), str(self.game.time_remaining), self.DARK_BLUE_TEXT)
         self.dis.blit(self.timer_surf, self.timer_location)
+        pygame.display.update()
+
+    def display_score(self, score):
+        self.dis.fill(self.BLUE_BACKGROUND)
+        result_surf = self.TIMER_FONT.render(f"WPM: {score}", self.WHITE, self.BLUE_BACKGROUND)[0]
+        width, height = result_surf.get_size()
+        x = (self.DIS_WIDTH - width) // 2
+        y = self.DIS_HEIGHT // 3 - height // 2
+        self.dis.blit(result_surf, (x, y))
         pygame.display.update()

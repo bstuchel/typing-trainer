@@ -19,6 +19,7 @@ class Game:
         # Timing data
         self.time_remaining = self.GAME_LENGTH
         self.words_typed = 0
+        self.score = 0
 
     @staticmethod
     def __get_lexicon():
@@ -48,7 +49,7 @@ class Game:
 
     def end_game(self, typed):
         correct_words = self.get_correct_words(typed)
-        print(f"WPM: {60 * correct_words // self.GAME_LENGTH}")
+        self.score = 60 * correct_words // self.GAME_LENGTH
 
     def get_correct_words(self, typed):
         correct_words = 0

@@ -6,7 +6,6 @@ This program runs the typing test application using pygame.
 To Do:
  - The game should load more text if the end of the prompt is reached
  - Add cursor
- - Show results on screen after timer expires
  - Add option to play again
 """
 from game import Game
@@ -38,6 +37,8 @@ def main():
                 gui.update_timer()
                 if game.time_remaining <= 0:
                     game.end_game(chars_typed)
+                    gui.display_score(game.score)
+                    pygame.time.wait(5000)
                     running = False
 
             if event.type == pygame.KEYDOWN:
