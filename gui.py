@@ -48,7 +48,7 @@ class Gui:
 
     def set_game(self, game):
         self.game = game
-        self.prompt_text = game.propt_text
+        self.prompt_text = game.prompt_text
         self.prompt_surf_rect = self.PROMPT_FONT.get_rect(game.prompt_text)
         self.prompt_baseline = self.prompt_surf_rect.y
         self.char_list = self.get_char_list()

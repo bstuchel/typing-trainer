@@ -23,35 +23,36 @@ class GameState(Enum):
 def main():
     pygame.init()
 
+    game = Game()
     gui = Gui()
     game_state = GameState.GAME
 
     while True:
         if game_state == GameState.GAME:
-            game_state = play(gui)
+            game_state = play(game, gui)
 
         if game_state == GameState.SCORE:
-            game_state = score(gui)
+            game_state = score(game, gui)
 
         if game_state == GameState.QUIT:
             pygame.quit()
             return        
 
-def play(gui):
-    game = Game()
+def play(game, gui):
+    game.new_game()
     gui.set_game(game)
 
-    # Initialize main loop
+    # Initialize game loop
     time_started = False
     cur_idx = 0
     chars_typed = ""
 
-    # Main loop
+    # Game loop
     while True:
-
         for event in pygame.event.get():
-            # End loop if window is closed
+            
             if event.type == pygame.QUIT:
+                # Change game state to QUIT
                 return GameState.QUIT
 
             if event.type == TIME_EVENT:
@@ -59,6 +60,8 @@ def play(gui):
                 game.tick_timer()
                 gui.update_timer()
                 if game.time_remaining <= 0:
+                    # Move to SCORE game state
+                    pygame.time.set_timer(TIME_EVENT, 0)
                     game.end_game(chars_typed)
                     gui.display_score(game.score)
                     return GameState.SCORE
@@ -89,8 +92,19 @@ def play(gui):
                     gui.update_prompt(cur_idx)
                     cur_idx += 1
 
-    pygame.quit()
+def score(game, gui):
+    while True:
+        for event in pygame.event.get():
 
+            if event.type == pygame.QUIT:
+                # Change game state to QUIT
+                return GameState.QUIT
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    return GameState.GAME
+
+        gui.display_score(game.score)
 
 if __name__ == '__main__':
     main()

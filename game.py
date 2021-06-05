@@ -7,25 +7,34 @@ import json
 import random
 
 class Game:
-    PROMPT_LENGTH = 45
-    GAME_LENGTH = 30
+    PROMPT_LENGTH = 45  # Words in prompt
+    GAME_LENGTH = 30    # Time in seconds
 
     def __init__(self):
-        self.__lexicon = self.__get_lexicon()
-        self.chosen_words = self.choose_words()
         # Prompt data
-        self.prompt_text = self.get_prompt()
+        self.__lexicon = self.__get_lexicon()
+        self.chosen_words = []
+        self.prompt_text = ""
         self.prompt_size = self.PROMPT_LENGTH
         # Timing data
         self.time_remaining = self.GAME_LENGTH
         self.words_typed = 0
         self.score = 0
+        self.new_game()
+
 
     @staticmethod
     def __get_lexicon():
         with open("res/lexicon.json", 'r') as f:
             lexicon = json.load(f)
         return lexicon
+
+    def new_game(self):
+        self.chosen_words = self.choose_words()
+        self.prompt_text = self.get_prompt()
+        self.time_remaining = self.GAME_LENGTH
+        self.words_typed = 0
+        self.score = 0
 
     def choose_words(self):
         chosen_words = []
@@ -34,9 +43,6 @@ class Game:
             if len(chosen_words) == 0 or choice != chosen_words[-1]:  # Avoid back to back words
                 chosen_words.append(choice)
         return chosen_words
-
-    def clear_words(self):
-        self.chosen_words.clear()
 
     def get_prompt(self):
         prompt = ""
