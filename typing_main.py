@@ -6,7 +6,6 @@ This program runs the typing test application using pygame.
 To Do:
  - The game should load more text if the end of the prompt is reached
  - Add cursor
- - Add option to play again
 """
 from enum import Enum
 from game import Game
@@ -93,9 +92,11 @@ def play(game, gui):
                     cur_idx += 1
 
 def score(game, gui):
+    # Display results screen
+    gui.display_score(game.score)
+
     while True:
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
                 # Change game state to QUIT
                 return GameState.QUIT
@@ -104,7 +105,6 @@ def score(game, gui):
                 if event.key == pygame.K_RETURN:
                     return GameState.GAME
 
-        gui.display_score(game.score)
 
 if __name__ == '__main__':
     main()

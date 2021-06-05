@@ -100,9 +100,16 @@ class Gui:
 
     def display_score(self, score):
         self.dis.fill(self.BLUE_BACKGROUND)
+        # Create result surface
         result_surf = self.TIMER_FONT.render(f"WPM: {score}", self.WHITE, self.BLUE_BACKGROUND)[0]
         width, height = result_surf.get_size()
         x = (self.DIS_WIDTH - width) // 2
         y = self.DIS_HEIGHT // 3 - height // 2
         self.dis.blit(result_surf, (x, y))
+        # Create play again surface
+        play_again_surf = self.PROMPT_FONT.render("Press enter to play again", self.WHITE, self.BLUE_BACKGROUND)[0]
+        width, height = play_again_surf.get_size()
+        x = (self.DIS_WIDTH - width) // 2
+        y = self.DIS_HEIGHT * 2 // 3 - height // 2
+        self.dis.blit(play_again_surf, (x, y))
         pygame.display.update()
