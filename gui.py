@@ -3,7 +3,6 @@ File: gui.py
 
 This file contains the gui class for the typing application.
 """
-from typing import SupportsAbs
 from letter import Letter
 import pygame
 import pygame.freetype
@@ -100,13 +99,13 @@ class Gui:
 
     def display_score(self, score):
         self.dis.fill(self.BLUE_BACKGROUND)
-        # Create result surface
+        # Display score
         result_surf = self.TIMER_FONT.render(f"WPM: {score}", self.WHITE, self.BLUE_BACKGROUND)[0]
         width, height = result_surf.get_size()
         x = (self.DIS_WIDTH - width) // 2
         y = self.DIS_HEIGHT // 3 - height // 2
         self.dis.blit(result_surf, (x, y))
-        # Create play again surface
+        # Display play again instructions
         play_again_surf = self.PROMPT_FONT.render("Press enter to play again", self.WHITE, self.BLUE_BACKGROUND)[0]
         width, height = play_again_surf.get_size()
         x = (self.DIS_WIDTH - width) // 2
