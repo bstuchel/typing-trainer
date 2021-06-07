@@ -26,18 +26,19 @@ class Gui:
     TIMER_FONT = pygame.freetype.Font(FONT_PATHNAME, TIMER_FONT_SIZE)
     TIMER_FONT.origin = False
     
+    # Define surface geometry
     DIS_WIDTH = 1080
     DIS_HEIGHT = 720
 
     PROMPT_SURF_WIDTH = DIS_WIDTH * 2 // 3
     PROMPT_SURF_HEIGHT = DIS_HEIGHT // 2
-    PROMPT_X = (DIS_WIDTH//2) - (PROMPT_SURF_WIDTH//2)
-    PROMPT_Y = (DIS_HEIGHT//2) - (PROMPT_SURF_HEIGHT//2)
+    PROMPT_X = (DIS_WIDTH - PROMPT_SURF_WIDTH) // 2
+    PROMPT_Y = (DIS_HEIGHT - PROMPT_SURF_HEIGHT) // 2
 
     TIMER_SURF_WIDTH = TIMER_FONT_SIZE * 2
     TIMER_SURF_HEIGHT = TIMER_FONT_SIZE
-    TIMER_X = (DIS_WIDTH//2) - (TIMER_SURF_WIDTH//2)
-    TIMER_Y = (PROMPT_X//2) - (TIMER_SURF_HEIGHT//2)
+    TIMER_X = (DIS_WIDTH - TIMER_SURF_WIDTH) // 2
+    TIMER_Y = (PROMPT_X - TIMER_SURF_HEIGHT) // 2
 
     def __init__(self):
         # Display surfaces
@@ -47,11 +48,8 @@ class Gui:
 
     def set_game(self, game):
         self.game = game
-        self.prompt_text = game.prompt_text
-        self.prompt_surf_rect = self.PROMPT_FONT.get_rect(game.prompt_text)
-        self.prompt_baseline = self.prompt_surf_rect.y
-        self.char_list = self.get_char_list()
-        self.set_display()
+        self.update_timer()
+        self.update_prompt()
 
     def create_display(self):
         dis = pygame.display.set_mode((self.DIS_WIDTH, self.DIS_HEIGHT))
@@ -59,37 +57,15 @@ class Gui:
         dis.fill(self.BLUE_BACKGROUND)
         return dis
 
-    def get_char_list(self):
-        char_list = []
-        x = 0
-        y = self.prompt_baseline
-        for ch in self.prompt_text:
-            char_list.append(Letter(ch, x, y))
-            x += self.PROMPT_FONT.get_metrics(ch)[0][4]
-            if (x >= self.PROMPT_SURF_WIDTH * 3 // 4 and ch == ' '):
-                x = 0
-                y += self.PROMPT_FONT_SIZE * 4 // 3
-        return char_list                
-
-    def set_display(self):
-        self.timer_surf.fill(self.BLUE_BACKGROUND)
-        self.TIMER_FONT.render_to(self.timer_surf, (0, 0), str(self.game.time_remaining), self.DARK_BLUE_TEXT)
-        self.dis.blit(self.timer_surf, (self.TIMER_X, self.TIMER_Y))
-
+    def update_prompt(self):
         self.prompt_surf.fill(self.BLUE_BACKGROUND)
-        for letter in self.char_list:
-            self.PROMPT_FONT.render_to(self.prompt_surf, letter.location, letter.ch, letter.color)
+        x = y = 0
+        for word in self.game.words:
+            for letter in word.char_list:
+                self.PROMPT_FONT.render_to(self.prompt_surf, (x, y), letter.ch, letter.color)
+            self.PROMPT_FONT.render_to(self.prompt_surf, (x, y), ' ', self.WHITE)
         self.dis.blit(self.prompt_surf, (self.PROMPT_X, self.PROMPT_Y))
         pygame.display.update()
-
-    def update_prompt(self, index):
-        if index != -1:
-            letter = self.char_list[index]
-            rect = pygame.Rect(letter.location[0], letter.location[1] - self.prompt_baseline, self.PROMPT_FONT.get_metrics(letter.ch)[0][4], self.PROMPT_FONT_SIZE * 4 // 3)
-            pygame.draw.rect(self.prompt_surf, self.BLUE_BACKGROUND, rect)
-            self.PROMPT_FONT.render_to(self.prompt_surf, letter.location, letter.ch, letter.color)
-            self.dis.blit(self.prompt_surf, ((self.DIS_WIDTH//2) - (self.PROMPT_SURF_WIDTH//2), (self.DIS_HEIGHT//2) - (self.PROMPT_SURF_HEIGHT//2)))
-            pygame.display.update()
 
     def update_timer(self):
         self.timer_surf.fill(self.BLUE_BACKGROUND)
@@ -97,10 +73,10 @@ class Gui:
         self.dis.blit(self.timer_surf, (self.TIMER_X, self.TIMER_Y))
         pygame.display.update()
 
-    def display_score(self, score):
+    def display_score(self):
         self.dis.fill(self.BLUE_BACKGROUND)
         # Display score
-        result_surf = self.TIMER_FONT.render(f"WPM: {score}", self.WHITE, self.BLUE_BACKGROUND)[0]
+        result_surf = self.TIMER_FONT.render(f"WPM: {self.game.score}", self.WHITE, self.BLUE_BACKGROUND)[0]
         width, height = result_surf.get_size()
         x = (self.DIS_WIDTH - width) // 2
         y = self.DIS_HEIGHT // 3 - height // 2

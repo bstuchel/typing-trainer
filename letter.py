@@ -10,10 +10,9 @@ class Letter:
     CORRECT = (214, 220, 231)       # White
     INCORRECT = (190, 97, 106)      # Red
 
-    def __init__(self, ch, x, y):
+    def __init__(self, ch):
         self.ch = ch
         self.color = self.DEFAULT
-        self.location = (x, y)        
 
     def set_correct(self):
         self.color = self.CORRECT

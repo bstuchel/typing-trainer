@@ -31,7 +31,7 @@ def main():
             game_state = play(game, gui)
 
         if game_state == GameState.SCORE:
-            game_state = score(game, gui)
+            game_state = score(gui)
 
         if game_state == GameState.QUIT:
             pygame.quit()
@@ -43,7 +43,6 @@ def play(game, gui):
 
     # Initialize game loop
     time_started = False
-    cur_idx = 0
     chars_typed = ""
 
     # Game loop
@@ -67,11 +66,10 @@ def play(game, gui):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
-                    if cur_idx != 0: cur_idx -= 1
-                    gui.char_list[cur_idx].set_default()
-                    gui.update_prompt(cur_idx)
-                    if chars_typed:
-                        chars_typed = chars_typed[:-1]
+                    game.prev_char()
+                    game.get_char().set_default()
+                    gui.update_prompt()
+                    chars_typed = chars_typed[:-1]
 
                 elif event.unicode != '':
                     chars_typed += event.unicode
@@ -82,18 +80,18 @@ def play(game, gui):
                         time_started = True
                     
                     # Update wether the letter was correctly typed
-                    if event.unicode == game.prompt_text[cur_idx]:
-                        gui.char_list[cur_idx].set_correct()
+                    if event.unicode == game.get_char().ch:
+                        game.get_char().set_correct()
                     else:
-                        gui.char_list[cur_idx].set_incorrect()
+                        game.get_char().set_incorrect()
 
                     # Update display
-                    gui.update_prompt(cur_idx)
-                    cur_idx += 1
+                    gui.update_prompt()
+                    game.next_char()
 
-def score(game, gui):
+def score(gui):
     # Display results screen
-    gui.display_score(game.score)
+    gui.display_score()
 
     while True:
         for event in pygame.event.get():
