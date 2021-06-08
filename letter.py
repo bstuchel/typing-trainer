@@ -3,6 +3,7 @@ File: letter.py
 
 This file contains the letter class used to make up the prompt in the typing application.
 """
+from gui import Gui
 
 class Letter:
     # Text colors
@@ -13,6 +14,7 @@ class Letter:
     def __init__(self, ch):
         self.ch = ch
         self.color = self.DEFAULT
+        self.width = Gui.SMALL_FONT.get_metrics(ch)[0][4]
 
     def set_correct(self):
         self.color = self.CORRECT

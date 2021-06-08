@@ -61,7 +61,7 @@ def play(game, gui):
                     # Move to SCORE game state
                     pygame.time.set_timer(TIME_EVENT, 0)
                     game.end_game(chars_typed)
-                    gui.display_score(game.score)
+                    gui.display_score()
                     return GameState.SCORE
 
             if event.type == pygame.KEYDOWN:
@@ -70,6 +70,10 @@ def play(game, gui):
                     game.get_char().set_default()
                     gui.update_prompt()
                     chars_typed = chars_typed[:-1]
+
+                elif event.key == pygame.K_SPACE:
+                    chars_typed += ' '
+                    game.next_word()
 
                 elif event.unicode != '':
                     chars_typed += event.unicode
@@ -80,14 +84,11 @@ def play(game, gui):
                         time_started = True
                     
                     # Update wether the letter was correctly typed
-                    if event.unicode == game.get_char().ch:
-                        game.get_char().set_correct()
-                    else:
-                        game.get_char().set_incorrect()
+                    game.type(event.unicode)
 
                     # Update display
                     gui.update_prompt()
-                    game.next_char()
+                    game.next_letter()
 
 def score(gui):
     # Display results screen

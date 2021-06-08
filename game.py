@@ -16,6 +16,7 @@ class Game:
         self.__lexicon = self.__get_lexicon()
         self.words = []
         self.prompt_size = self.PROMPT_LENGTH
+        self.input = []
         self.word_idx = 0
         self.letter_idx = 0
         # Timing data
@@ -30,6 +31,7 @@ class Game:
         return lexicon
 
     def new_game(self):
+        self.words = []
         self.choose_words()
         self.time_remaining = self.GAME_LENGTH
         self.score = 0
@@ -44,11 +46,12 @@ class Game:
                 last = choice
                 self.words.append(Word(choice))
 
-    def next_char(self):
+    def next_letter(self):
         self.letter_idx += 1
-        if self.letter_idx == len(self.words[self.word_idx].char_list):
-            self.word_idx += 1
-            self.letter_idx = 0
+
+    def next_word(self):
+        self.word_idx += 1
+        self.letter_idx = 0
 
     def prev_char(self):
         if self.word_idx != 0 or self.letter_idx != 0:
@@ -58,7 +61,17 @@ class Game:
                 self.letter_idx = len(self.words[self.word_idx].char_list) - 1
 
     def get_char(self):
+        if self.word_idx >= len(self.words) or self.letter_idx >= len(self.words[self.word_idx].char_list):
+            return None
         return self.words[self.word_idx].char_list[self.letter_idx]
+
+    def type(self, ch):
+        cur_ch = self.get_char()
+        if cur_ch:
+            if ch == cur_ch.ch:
+                cur_ch.set_correct()
+            else:
+                cur_ch.set_incorrect()
 
     def tick_timer(self):
         self.time_remaining -= 1
