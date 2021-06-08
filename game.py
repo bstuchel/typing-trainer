@@ -14,15 +14,16 @@ class Game:
     def __init__(self):
         # Prompt data
         self.__lexicon = self.__get_lexicon()
-        self.words = []
+        self.prompt = []
         self.prompt_size = self.PROMPT_LENGTH
+        # User input data
+        self.typed = ""
         self.input = []
         self.word_idx = 0
         self.letter_idx = 0
         # Timing data
         self.time_remaining = self.GAME_LENGTH
         self.score = 0
-        self.new_game()
 
     @staticmethod
     def __get_lexicon():
@@ -31,56 +32,71 @@ class Game:
         return lexicon
 
     def new_game(self):
-        self.words = []
-        self.choose_words()
-        self.time_remaining = self.GAME_LENGTH
-        self.score = 0
+        self.prompt = []
+        self.generate_prompt()
+        self.typed= ""
+        self.input = [Word()]
         self.word_idx = 0
         self.letter_idx = 0
+        self.time_remaining = self.GAME_LENGTH
+        self.score = 0
 
-    def choose_words(self):
+    def generate_prompt(self):
         last = ""
-        while len(self.words) < self.PROMPT_LENGTH:
+        while len(self.prompt) < self.PROMPT_LENGTH:
             choice = random.choice(self.__lexicon)
             if choice != last:  # Avoid back to back words
+                self.prompt.append(Word(choice))
                 last = choice
-                self.words.append(Word(choice))
 
-    def next_letter(self):
-        self.letter_idx += 1
-
-    def next_word(self):
-        self.word_idx += 1
-        self.letter_idx = 0
-
-    def prev_char(self):
-        if self.word_idx != 0 or self.letter_idx != 0:
+    def backspace(self):
+        if self.word_idx == 0 and self.letter_idx == 0:
+            return
+        elif self.letter_idx == 0:
+            self.word_idx -= 1
+            self.letter_idx = len(self.input[self.word_idx].char_list)
+        else:
+            self.input[self.word_idx].char_list.pop()
             self.letter_idx -= 1
-            if self.letter_idx == -1:
-                self.word_idx -= 1
-                self.letter_idx = len(self.words[self.word_idx].char_list) - 1
 
     def get_char(self):
-        if self.word_idx >= len(self.words) or self.letter_idx >= len(self.words[self.word_idx].char_list):
+        if self.word_idx >= len(self.prompt) or self.letter_idx >= len(self.prompt[self.word_idx].char_list):
             return None
-        return self.words[self.word_idx].char_list[self.letter_idx]
+        return self.prompt[self.word_idx].char_list[self.letter_idx]
 
     def type(self, ch):
-        cur_ch = self.get_char()
-        if cur_ch:
-            if ch == cur_ch.ch:
-                cur_ch.set_correct()
+        if ch == '':
+            return
+        elif ch == ' ':
+            self.typed += ' '
+            # Move to next word
+            self.word_idx += 1
+            self.letter_idx = 0
+            self.input.append(Word())
+        else:
+            self.typed += ch
+            if self.letter_idx < len(self.prompt[self.word_idx].char_list):
+                # Change letter color
+                cur_ch = self.get_char()
+                if ch == cur_ch.ch:
+                    cur_ch.set_correct()
+                else:
+                    cur_ch.set_incorrect()
+                self.input[self.word_idx].add_letter(self.prompt[self.word_idx].char_list[self.letter_idx])
             else:
-                cur_ch.set_incorrect()
+                self.input[self.word_idx].add_text(ch)
+                self.input[self.word_idx].char_list[-1].set_incorrect()
+            # Move to next letter
+            self.letter_idx += 1
 
     def tick_timer(self):
         self.time_remaining -= 1
 
-    def end_game(self, typed):
-        correct_words = self.get_correct_words(typed)
+    def end_game(self):
+        correct_words = self.get_correct_words()
         self.score = 60 * correct_words // self.GAME_LENGTH
 
-    def get_correct_words(self, typed):
+    def get_correct_words(self):
         return 1
         ### This needs to be reworked
         # correct_words = 0

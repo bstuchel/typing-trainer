@@ -14,10 +14,12 @@ import pygame
 
 TIME_EVENT = pygame.USEREVENT
 
+
 class GameState(Enum):
     QUIT = -1
     GAME = 0
     SCORE = 1
+
 
 def main():
     pygame.init()
@@ -37,13 +39,12 @@ def main():
             pygame.quit()
             return        
 
+
 def play(game, gui):
+    # Initialize game loop
     game.new_game()
     gui.set_game(game)
-
-    # Initialize game loop
     time_started = False
-    chars_typed = ""
 
     # Game loop
     while True:
@@ -60,35 +61,25 @@ def play(game, gui):
                 if game.time_remaining <= 0:
                     # Move to SCORE game state
                     pygame.time.set_timer(TIME_EVENT, 0)
-                    game.end_game(chars_typed)
+                    game.end_game()
                     gui.display_score()
                     return GameState.SCORE
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
-                    game.prev_char()
-                    game.get_char().set_default()
-                    gui.update_prompt()
-                    chars_typed = chars_typed[:-1]
-
-                elif event.key == pygame.K_SPACE:
-                    chars_typed += ' '
-                    game.next_word()
-
-                elif event.unicode != '':
-                    chars_typed += event.unicode
-                    # The key pressed was a character
+                    game.backspace()
+                    cur_ch = game.get_char()
+                    if cur_ch: cur_ch.set_default()
+                else:
                     if not time_started:
                         # Start the game timer
                         pygame.time.set_timer(TIME_EVENT, 1000)
                         time_started = True
-                    
-                    # Update wether the letter was correctly typed
                     game.type(event.unicode)
 
-                    # Update display
-                    gui.update_prompt()
-                    game.next_letter()
+            # Update display
+            gui.update_prompt()
+
 
 def score(gui):
     # Display results screen

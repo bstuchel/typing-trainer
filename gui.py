@@ -21,6 +21,7 @@ class Gui:
     SMALL_FONT = pygame.freetype.Font(FONT_PATHNAME, SMALL_FONT_SIZE)
     SMALL_FONT.origin = True
     SMALL_SPACE_WIDTH = SMALL_FONT.get_metrics(' ')[0][4]
+    SMALL_CURSOR_WIDTH = SMALL_FONT.get_metrics('|')[0][4]
 
     LARGE_FONT_SIZE = 100
     LARGE_FONT = pygame.freetype.Font(FONT_PATHNAME, LARGE_FONT_SIZE)
@@ -59,9 +60,59 @@ class Gui:
 
     def update_prompt(self):
         self.prompt_surf.fill(self.BLUE_BACKGROUND)
+        i = 0
         x = 0
         y = self.SMALL_FONT_SIZE
-        for word in self.game.words:
+
+        # Print completed words
+        while i < self.game.word_idx:
+            input_word = self.game.input[i]
+            if x + input_word.width > self.PROMPT_SURF_WIDTH:
+                    y += self.SMALL_FONT_SIZE * 3 // 2
+                    x = 0
+            j = 0
+            while j < len(input_word.char_list):
+                letter = input_word.char_list[j]
+                self.SMALL_FONT.render_to(self.prompt_surf, (x, y), letter.ch, letter.color)
+                x += letter.width
+                j += 1
+            while j < len(self.game.prompt[i].char_list):
+                # The word wasn't completed
+                letter = self.game.prompt[i].char_list[j]
+                self.SMALL_FONT.render_to(self.prompt_surf, (x, y), letter.ch, letter.color)
+                x += letter.width
+                j += 1
+            self.SMALL_FONT.render_to(self.prompt_surf, (x, y), ' ', self.WHITE)
+            x += self.SMALL_SPACE_WIDTH
+            i += 1
+
+        # Print current word
+        input_word = self.game.input[i]
+        word = self.game.prompt[i]
+        if len(input_word.char_list) > len(word.char_list):
+            word = input_word
+        if x + word.width > self.PROMPT_SURF_WIDTH:
+            y += self.SMALL_FONT_SIZE * 3 // 2
+            x = 0
+        j = 0
+        while j < len(word.char_list):
+            letter = word.char_list[j]
+            self.SMALL_FONT.render_to(self.prompt_surf, (x, y), letter.ch, letter.color)
+            if j == self.game.letter_idx:
+                # Print cursor
+                pygame.draw.rect(self.prompt_surf, self.WHITE, pygame.Rect(x, y - self.SMALL_FONT_SIZE, 2, self.SMALL_FONT_SIZE * 4 // 3))
+            x += letter.width
+            j += 1
+        if j == self.game.letter_idx:
+            # Print cursor
+            pygame.draw.rect(self.prompt_surf, self.WHITE, pygame.Rect(x, y - self.SMALL_FONT_SIZE, 2, self.SMALL_FONT_SIZE * 4 // 3))
+        self.SMALL_FONT.render_to(self.prompt_surf, (x, y), ' ', self.WHITE)
+        x += self.SMALL_SPACE_WIDTH
+        i += 1      
+
+        # Print remaining prompt
+        while i < len(self.game.prompt):
+            word = self.game.prompt[i]
             if x + word.width > self.PROMPT_SURF_WIDTH:
                 y += self.SMALL_FONT_SIZE * 3 // 2
                 x = 0
@@ -70,6 +121,9 @@ class Gui:
                 x += letter.width
             self.SMALL_FONT.render_to(self.prompt_surf, (x, y), ' ', self.WHITE)
             x += self.SMALL_SPACE_WIDTH
+            i += 1
+
+        # Display prompt surface
         self.dis.blit(self.prompt_surf, (self.PROMPT_X, self.PROMPT_Y))
         pygame.display.update()
 
