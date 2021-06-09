@@ -17,12 +17,13 @@ class Game:
         self.prompt = []
         self.prompt_size = self.PROMPT_LENGTH
         # User input data
-        self.typed = ""
         self.input = []
         self.word_idx = 0
         self.letter_idx = 0
         # Timing data
         self.time_remaining = self.GAME_LENGTH
+        self.raw_score = 0        
+        self.incorrect_words = 0
         self.score = 0
 
     @staticmethod
@@ -34,11 +35,12 @@ class Game:
     def new_game(self):
         self.prompt = []
         self.generate_prompt()
-        self.typed= ""
         self.input = [Word()]
         self.word_idx = 0
         self.letter_idx = 0
         self.time_remaining = self.GAME_LENGTH
+        self.raw_score = 0
+        self.incorrect_words = 0
         self.score = 0
 
     def generate_prompt(self):
@@ -68,13 +70,11 @@ class Game:
         if ch == '':
             return
         elif ch == ' ':
-            self.typed += ' '
             # Move to next word
             self.word_idx += 1
             self.letter_idx = 0
             self.input.append(Word())
         else:
-            self.typed += ch
             if self.letter_idx < len(self.prompt[self.word_idx].char_list):
                 # Change letter color
                 cur_ch = self.get_char()
@@ -93,21 +93,22 @@ class Game:
         self.time_remaining -= 1
 
     def end_game(self):
-        correct_words = self.get_correct_words()
+        words_typed = len(self.input)
+        self.raw_score = 60 * words_typed // self.GAME_LENGTH
+        self.incorrect_words = self.get_incorrect_words()
+        correct_words = words_typed - self.incorrect_words
         self.score = 60 * correct_words // self.GAME_LENGTH
 
-    def get_correct_words(self):
-        return 1
-        ### This needs to be reworked
-        # correct_words = 0
-        # i = 0
-        # while i < len(typed):
-        #     while i < len(typed) and typed[i] == self.prompt_text[i]:
-        #         if typed[i] == ' ':
-        #            correct_words += 1
-        #            break
-        #         i += 1
-        #     while i < len(typed) and typed[i] != ' ':
-        #         i += 1
-        #     i += 1
-        # return correct_words
+    def get_incorrect_words(self):
+        incorrect_words = 0
+        for i in range(len(self.input) - 1):
+            input_word = self.input[i]
+            prompt_word = self.prompt[i]
+            if len(input_word.char_list) != len(prompt_word.char_list):
+                incorrect_words += 1
+                continue
+            for j in range(len(prompt_word.char_list)):
+                if (input_word.char_list[j] != prompt_word.char_list[j]):
+                    incorrect_words += 1
+                    continue
+        return incorrect_words

@@ -21,7 +21,10 @@ class Gui:
     SMALL_FONT = pygame.freetype.Font(FONT_PATHNAME, SMALL_FONT_SIZE)
     SMALL_FONT.origin = True
     SMALL_SPACE_WIDTH = SMALL_FONT.get_metrics(' ')[0][4]
-    SMALL_CURSOR_WIDTH = SMALL_FONT.get_metrics('|')[0][4]
+
+    MED_FONT_SIZE = 50
+    MED_FONT = pygame.freetype.Font(FONT_PATHNAME, MED_FONT_SIZE)
+    MED_FONT.origin = True
 
     LARGE_FONT_SIZE = 100
     LARGE_FONT = pygame.freetype.Font(FONT_PATHNAME, LARGE_FONT_SIZE)
@@ -58,6 +61,17 @@ class Gui:
         dis.fill(self.BLUE_BACKGROUND)
         return dis
 
+    def update_display(self):
+        self.dis.fill(self.BLUE_BACKGROUND)
+        self.update_timer()
+        self.update_prompt()
+        pygame.display.update()
+
+    def update_timer(self):
+        self.timer_surf.fill(self.BLUE_BACKGROUND)
+        self.LARGE_FONT.render_to(self.timer_surf, (0, 0), str(self.game.time_remaining), self.DARK_BLUE_TEXT)
+        self.dis.blit(self.timer_surf, (self.TIMER_X, self.TIMER_Y))
+
     def update_prompt(self):
         self.prompt_surf.fill(self.BLUE_BACKGROUND)
         i = 0
@@ -67,9 +81,7 @@ class Gui:
         # Print completed words
         while i < self.game.word_idx:
             input_word = self.game.input[i]
-            if x + input_word.width > self.PROMPT_SURF_WIDTH:
-                    y += self.SMALL_FONT_SIZE * 3 // 2
-                    x = 0
+            x, y = self.check_text_wrap(x, y, input_word.width)
             j = 0
             while j < len(input_word.char_list):
                 letter = input_word.char_list[j]
@@ -86,21 +98,19 @@ class Gui:
             x += self.SMALL_SPACE_WIDTH
             i += 1
 
-        # Print current word
+        # Print current word and cursor
         input_word = self.game.input[i]
         word = self.game.prompt[i]
         if len(input_word.char_list) > len(word.char_list):
             word = input_word
-        if x + word.width > self.PROMPT_SURF_WIDTH:
-            y += self.SMALL_FONT_SIZE * 3 // 2
-            x = 0
+        x, y = self.check_text_wrap(x, y, word.width)
         j = 0
         while j < len(word.char_list):
-            letter = word.char_list[j]
-            self.SMALL_FONT.render_to(self.prompt_surf, (x, y), letter.ch, letter.color)
-            if j == self.game.letter_idx:
+            if j == self.game.letter_idx:  
                 # Print cursor
                 pygame.draw.rect(self.prompt_surf, self.WHITE, pygame.Rect(x, y - self.SMALL_FONT_SIZE, 2, self.SMALL_FONT_SIZE * 4 // 3))
+            letter = word.char_list[j]
+            self.SMALL_FONT.render_to(self.prompt_surf, (x, y), letter.ch, letter.color)
             x += letter.width
             j += 1
         if j == self.game.letter_idx:
@@ -113,9 +123,7 @@ class Gui:
         # Print remaining prompt
         while i < len(self.game.prompt):
             word = self.game.prompt[i]
-            if x + word.width > self.PROMPT_SURF_WIDTH:
-                y += self.SMALL_FONT_SIZE * 3 // 2
-                x = 0
+            x, y = self.check_text_wrap(x, y, word.width)
             for letter in word.char_list:
                 self.SMALL_FONT.render_to(self.prompt_surf, (x, y), letter.ch, letter.color)
                 x += letter.width
@@ -125,22 +133,35 @@ class Gui:
 
         # Display prompt surface
         self.dis.blit(self.prompt_surf, (self.PROMPT_X, self.PROMPT_Y))
-        pygame.display.update()
 
-    def update_timer(self):
-        self.timer_surf.fill(self.BLUE_BACKGROUND)
-        self.LARGE_FONT.render_to(self.timer_surf, (0, 0), str(self.game.time_remaining), self.DARK_BLUE_TEXT)
-        self.dis.blit(self.timer_surf, (self.TIMER_X, self.TIMER_Y))
-        pygame.display.update()
+    def check_text_wrap(self, x, y, width):
+        if x + width > self.PROMPT_SURF_WIDTH:
+            y += self.SMALL_FONT_SIZE * 3 // 2
+            x = 0
+        return x, y
 
     def display_score(self):
         self.dis.fill(self.BLUE_BACKGROUND)
-        # Display score
-        result_surf = self.LARGE_FONT.render(f"WPM: {self.game.score}", self.WHITE, self.BLUE_BACKGROUND)[0]
-        width, height = result_surf.get_size()
+        height = self.SMALL_FONT_SIZE * 4 + self.MED_FONT_SIZE
+        width = self.DIS_WIDTH
+        score_surf = pygame.Surface((width, height))
+        score_surf.fill(self.BLUE_BACKGROUND)
+        # Display raw score
+        text = f"Raw WPM: {self.game.raw_score}"
+        y = self.SMALL_FONT_SIZE
+        self.write_line(text, self.SMALL_FONT, score_surf, y)
+        # Display incorrect words
+        text = f"Incorrect Words: {self.game.incorrect_words}"
+        y = self.SMALL_FONT_SIZE*3
+        self.write_line(text, self.SMALL_FONT, score_surf, y)
+        # Display adjusted score
+        text = f"Adjusted WPM: {self.game.score}"
+        y = self.SMALL_FONT_SIZE * 4 + self.MED_FONT_SIZE
+        self.write_line(text, self.MED_FONT, score_surf, y)
+        # Blit to display
         x = (self.DIS_WIDTH - width) // 2
         y = self.DIS_HEIGHT // 3 - height // 2
-        self.dis.blit(result_surf, (x, y))
+        self.dis.blit(score_surf, (x, y))
         # Display play again instructions
         play_again_surf = self.SMALL_FONT.render("Press enter to play again", self.WHITE, self.BLUE_BACKGROUND)[0]
         width, height = play_again_surf.get_size()
@@ -148,3 +169,10 @@ class Gui:
         y = self.DIS_HEIGHT * 2 // 3 - height // 2
         self.dis.blit(play_again_surf, (x, y))
         pygame.display.update()
+
+    def write_line(self, text, font, surf, y):
+        text_rect = font.get_rect(text)
+        text_width = text_rect.width
+        width = surf.get_size()[0]
+        x = (width - text_width) // 2
+        font.render_to(surf, (x, y), text, self.WHITE)

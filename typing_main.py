@@ -5,7 +5,6 @@ This program runs the typing test application using pygame.
 
 To Do:
  - The game should load more text if the end of the prompt is reached
- - Add cursor
 """
 from enum import Enum
 from game import Game
@@ -57,7 +56,6 @@ def play(game, gui):
             if event.type == TIME_EVENT:
                 # One second has passed, update timer
                 game.tick_timer()
-                gui.update_timer()
                 if game.time_remaining <= 0:
                     # Move to SCORE game state
                     pygame.time.set_timer(TIME_EVENT, 0)
@@ -78,7 +76,7 @@ def play(game, gui):
                     game.type(event.unicode)
 
             # Update display
-            gui.update_prompt()
+            gui.update_display()
 
 
 def score(gui):
