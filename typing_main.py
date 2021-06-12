@@ -73,7 +73,7 @@ def play(game, gui):
                         # Start the game timer
                         pygame.time.set_timer(TIME_EVENT, 1000)
                         time_started = True
-                    game.type(event.unicode)
+                    game.type_char(event.unicode)
 
             # Update display
             gui.update_display()

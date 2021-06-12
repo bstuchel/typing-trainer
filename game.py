@@ -8,7 +8,7 @@ import random
 from word import Word
 
 class Game:
-    PROMPT_LENGTH = 45  # Words in prompt
+    PROMPT_LENGTH = 50  # Words in prompt
     GAME_LENGTH = 30    # Time in seconds
 
     def __init__(self):
@@ -58,7 +58,7 @@ class Game:
             self.word_idx -= 1
             self.letter_idx = len(self.input[self.word_idx].char_list)
         else:
-            self.input[self.word_idx].char_list.pop()
+            self.input[self.word_idx].remove_last()
             self.letter_idx -= 1
 
     def get_char(self):
@@ -66,7 +66,7 @@ class Game:
             return None
         return self.prompt[self.word_idx].char_list[self.letter_idx]
 
-    def type(self, ch):
+    def type_char(self, ch):
         if ch == '':
             return
         elif ch == ' ':
@@ -93,7 +93,7 @@ class Game:
         self.time_remaining -= 1
 
     def end_game(self):
-        words_typed = len(self.input)
+        words_typed = self.word_idx
         self.raw_score = 60 * words_typed // self.GAME_LENGTH
         self.incorrect_words = self.get_incorrect_words()
         correct_words = words_typed - self.incorrect_words
@@ -101,7 +101,7 @@ class Game:
 
     def get_incorrect_words(self):
         incorrect_words = 0
-        for i in range(len(self.input) - 1):
+        for i in range(self.word_idx):
             input_word = self.input[i]
             prompt_word = self.prompt[i]
             if len(input_word.char_list) != len(prompt_word.char_list):

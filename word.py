@@ -23,3 +23,7 @@ class Word:
     def add_letter(self, letter):
         self.char_list.append(letter)
         self.width += self.char_list[-1].width
+
+    def remove_last(self):
+        self.width -= self.char_list.pop().width
+        
