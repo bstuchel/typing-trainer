@@ -15,6 +15,7 @@ TIME_EVENT = pygame.USEREVENT
 
 
 class GameState(Enum):
+    # Type used to control the gamestate
     QUIT = -1
     GAME = 0
     SCORE = 1
@@ -83,6 +84,7 @@ def score(gui):
     # Display results screen
     gui.display_score()
 
+    # Result screen loop
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

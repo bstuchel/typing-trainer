@@ -28,11 +28,13 @@ class Game:
 
     @staticmethod
     def __get_lexicon():
+        # Load the lexicon from a JSON file
         with open("res/lexicon.json", 'r') as f:
             lexicon = json.load(f)
         return lexicon
 
     def new_game(self):
+        # Reset the game with a new prompt (from the same lexicon)
         self.prompt = []
         self.generate_prompt()
         self.input = [Word()]
@@ -44,6 +46,7 @@ class Game:
         self.score = 0
 
     def generate_prompt(self):
+        # Generate a prompt of words and store them
         last = ""
         while len(self.prompt) < self.PROMPT_LENGTH:
             choice = random.choice(self.__lexicon)
@@ -52,6 +55,7 @@ class Game:
                 last = choice
 
     def backspace(self):
+        # Delete last letter typed and move cursor back one if not already at the beginning of the prompt
         if self.word_idx == 0 and self.letter_idx == 0:
             return
         elif self.letter_idx == 0:
@@ -62,11 +66,13 @@ class Game:
             self.letter_idx -= 1
 
     def get_char(self):
+        # Return the character for the current index in the prompt
         if self.word_idx >= len(self.prompt) or self.letter_idx >= len(self.prompt[self.word_idx].char_list):
             return None
         return self.prompt[self.word_idx].char_list[self.letter_idx]
 
     def type_char(self, ch):
+        # Handle keyboard input, update color of letter based on if it was correctly typed and  move the cursor
         if ch == '':
             return
         elif ch == ' ':
@@ -90,9 +96,11 @@ class Game:
             self.letter_idx += 1
 
     def tick_timer(self):
+        # Count down the game timer by 1 second
         self.time_remaining -= 1
 
     def end_game(self):
+        # Compute the raw and adjusted scores
         words_typed = self.word_idx
         self.raw_score = 60 * words_typed // self.GAME_LENGTH
         self.incorrect_words = self.get_incorrect_words()
@@ -100,6 +108,7 @@ class Game:
         self.score = 60 * correct_words // self.GAME_LENGTH
 
     def get_incorrect_words(self):
+        # Compute and return the number of words that were incorrectly typed
         incorrect_words = 0
         for i in range(self.word_idx):
             input_word = self.input[i]

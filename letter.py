@@ -14,7 +14,7 @@ class Letter:
     def __init__(self, ch):
         self.ch = ch
         self.color = self.DEFAULT
-        self.width = Gui.SMALL_FONT.get_metrics(ch)[0][4]
+        self.width = Gui.SMALL_FONT.get_metrics(ch)[0][4] # Width of letter based on the font from the Gui class
 
     def set_correct(self):
         self.color = self.CORRECT
