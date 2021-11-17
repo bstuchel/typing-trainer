@@ -3,6 +3,7 @@ File: game.py
 
 This file contains the typing game logic.
 """
+import copy
 import json
 import random
 from word import Word
@@ -16,6 +17,8 @@ class Game:
         self.__lexicon = self.__get_lexicon()
         self.prompt = []
         self.prompt_size = self.PROMPT_LENGTH
+        # Display data
+        self.display_prompt = []
         # User input data
         self.input = []
         self.word_idx = 0
@@ -37,6 +40,7 @@ class Game:
         # Reset the game with a new prompt (from the same lexicon)
         self.prompt = []
         self.generate_prompt()
+        self.display_prompt = copy.deepcopy(self.prompt)
         self.input = [Word()]
         self.word_idx = 0
         self.letter_idx = 0
@@ -65,33 +69,44 @@ class Game:
             self.input[self.word_idx].remove_last()
             self.letter_idx -= 1
 
+        # Adjust prompt
+        if self.letter_idx >= len(self.prompt[self.word_idx].char_list):
+            dis_prompt_word_length = len(self.display_prompt[self.word_idx].char_list)
+            prompt_word_length = len(self.prompt[self.word_idx].char_list)
+            if dis_prompt_word_length > prompt_word_length:
+                self.display_prompt[self.word_idx].remove_last()
+        else:
+            self.display_prompt[self.word_idx].char_list[self.letter_idx].set_default()
+
+
     def get_char(self):
         # Return the character for the current index in the prompt
-        if self.word_idx >= len(self.prompt) or self.letter_idx >= len(self.prompt[self.word_idx].char_list):
-            return None
-        return self.prompt[self.word_idx].char_list[self.letter_idx]
+        if self.word_idx < len(self.prompt):
+            word = self.prompt[self.word_idx].char_list
+            if self.letter_idx < len(word):
+                return word[self.letter_idx]
+        return None
 
     def type_char(self, ch):
         # Handle keyboard input, update color of letter based on if it was correctly typed and  move the cursor
-        if ch == '':
-            return
-        elif ch == ' ':
+        if ch == ' ':
             # Move to next word
             self.word_idx += 1
             self.letter_idx = 0
             self.input.append(Word())
-        else:
+        elif ch.isalnum():
             if self.letter_idx < len(self.prompt[self.word_idx].char_list):
-                # Change letter color
+                # Update whether char is correct or not
                 cur_ch = self.get_char()
                 if ch == cur_ch.ch:
-                    cur_ch.set_correct()
+                    self.display_prompt[self.word_idx].char_list[self.letter_idx].set_correct()
                 else:
-                    cur_ch.set_incorrect()
-                self.input[self.word_idx].add_letter(self.prompt[self.word_idx].char_list[self.letter_idx])
+                    self.display_prompt[self.word_idx].char_list[self.letter_idx].set_incorrect()
             else:
-                self.input[self.word_idx].add_text(ch)
-                self.input[self.word_idx].char_list[-1].set_incorrect()
+                # User added too many characters to word
+                self.display_prompt[self.word_idx].add_text(ch)
+                self.display_prompt[self.word_idx].char_list[-1].set_incorrect()
+            self.input[self.word_idx].add_text(ch)
             # Move to next letter
             self.letter_idx += 1
 
@@ -117,7 +132,7 @@ class Game:
                 incorrect_words += 1
                 continue
             for j in range(len(prompt_word.char_list)):
-                if (input_word.char_list[j] != prompt_word.char_list[j]):
+                if input_word.char_list[j].ch != prompt_word.char_list[j].ch:
                     incorrect_words += 1
-                    continue
+                    break
         return incorrect_words

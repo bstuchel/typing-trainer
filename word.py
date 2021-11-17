@@ -10,6 +10,7 @@ class Word:
         self.char_list = [] 
         self.width = 0
         self.create_word(text)
+        self.is_correct = True
 
     def create_word(self, text):
         # Create a word by creating a list of Letter objects
