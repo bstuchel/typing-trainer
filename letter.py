@@ -17,10 +17,13 @@ class Letter:
         self.width = Gui.SMALL_FONT.get_metrics(ch)[0][4] # Width of letter based on the font from the Gui class
 
     def set_correct(self):
+        """ Set the letter color for a correct input """
         self.color = self.CORRECT
 
     def set_incorrect(self):
+        """ Set the letter color for an incorrect input """
         self.color = self.INCORRECT
 
     def set_default(self):
+        """ Set the letter color to be the default """
         self.color = self.DEFAULT

@@ -29,7 +29,7 @@ class Gui:
     LARGE_FONT_SIZE = 100
     LARGE_FONT = pygame.freetype.Font(FONT_PATHNAME, LARGE_FONT_SIZE)
     LARGE_FONT.origin = False
-    
+
     # Define surface geometry
     DIS_WIDTH = 1080
     DIS_HEIGHT = 720
@@ -45,73 +45,98 @@ class Gui:
     TIMER_Y = (PROMPT_X - TIMER_SURF_HEIGHT) // 2
 
     def __init__(self):
-        # Create surfaces
+        """ Create display surfaces """
         self.dis = self.create_display()
-        self.prompt_surf = pygame.Surface((self.PROMPT_SURF_WIDTH, self.PROMPT_SURF_HEIGHT))
-        self.timer_surf = pygame.Surface((self.TIMER_SURF_WIDTH, self.TIMER_SURF_HEIGHT))
+        self.prompt_surf = pygame.Surface((self.PROMPT_SURF_WIDTH, 
+                                           self.PROMPT_SURF_HEIGHT))
+        self.timer_surf = pygame.Surface((self.TIMER_SURF_WIDTH, 
+                                          self.TIMER_SURF_HEIGHT))
 
     def set_game(self, game):
-        # Set the gui for a given Game object
+        """ Set the gui for a give game object
+        :param game.Game game: Game object
+        """
         self.game = game
         self.update_timer()
         self.update_prompt()
 
     def create_display(self):
-        # Create the display surface using the defined parameters
+        """ Create the display surface using the defined parameters """
         dis = pygame.display.set_mode((self.DIS_WIDTH, self.DIS_HEIGHT))
         pygame.display.set_caption("Typing Practice")
         dis.fill(self.BLUE_BACKGROUND)
         return dis
 
     def update_display(self):
-        # Update the timer and prompt to the screen
+        """ Update the timer and prompt to the screen """
         self.dis.fill(self.BLUE_BACKGROUND)
         self.update_timer()
         self.update_prompt()
         pygame.display.update()
 
     def update_timer(self):
-        # Update the timer based on the Game object
+        """ Update the timer based on the Game object """
         self.timer_surf.fill(self.BLUE_BACKGROUND)
-        self.LARGE_FONT.render_to(self.timer_surf, (0, 0), str(self.game.time_remaining), self.DARK_BLUE_TEXT)
+        self.LARGE_FONT.render_to(self.timer_surf, 
+                                  (0, 0), 
+                                  str(self.game.time_remaining), 
+                                  self.DARK_BLUE_TEXT)
         self.dis.blit(self.timer_surf, (self.TIMER_X, self.TIMER_Y))
 
     def update_prompt(self):
-        # Update the prompt by iterating over each letter of typed and untyped characters
+        """ Update the prompt by iterating over each letter of typed and 
+        untyped characters 
+        """
         self.prompt_surf.fill(self.BLUE_BACKGROUND)
         i = 0
         x = 0
         y = self.SMALL_FONT_SIZE
         while i < len(self.game.display_prompt):
             word = self.game.display_prompt[i]
-            x, y = self.check_text_wrap(x, y, word.width)
+            x, y = self.get_pos(x, y, word.width)
             j = 0
             while j < len(word.char_list):
-                self.SMALL_FONT.render_to(self.prompt_surf, (x, y), word.char_list[j].ch, word.char_list[j].color)
-                if i == self.game.word_idx and j == self.game.letter_idx:  
-                    # Print cursor
-                    pygame.draw.rect(self.prompt_surf, self.WHITE, pygame.Rect(x, y - self.SMALL_FONT_SIZE, 2, self.SMALL_FONT_SIZE * 4 // 3))
+                self.SMALL_FONT.render_to(self.prompt_surf, (x, y), 
+                                          word.char_list[j].ch, 
+                                          word.char_list[j].color)
+                self.draw_cursor(i, j, x, y)
                 x += word.char_list[j].width
                 j += 1
-            if i == self.game.word_idx and j == self.game.letter_idx:
-                # Print cursor
-                pygame.draw.rect(self.prompt_surf, self.WHITE, pygame.Rect(x, y - self.SMALL_FONT_SIZE, 2, self.SMALL_FONT_SIZE * 4 // 3))
-            self.SMALL_FONT.render_to(self.prompt_surf, (x, y), ' ', self.WHITE)
+            self.draw_cursor(i, j, x, y)
+            self.SMALL_FONT.render_to(self.prompt_surf, (x, y), 
+                                      ' ', self.WHITE)
             x += self.SMALL_SPACE_WIDTH
             i += 1
 
-        # Display prompt surface
         self.dis.blit(self.prompt_surf, (self.PROMPT_X, self.PROMPT_Y))
 
-    def check_text_wrap(self, x, y, width):
-        # Wrap text if theres not enough room for the next word (based on the given width)
+    def get_pos(self, x, y, width):
+        """ If the give width will not fit on the current line, the text must 
+        be wrapped to the next line by updating x and y. 
+        :param int x: Current horizontal location on display
+        :param int y: Current vertical location on display
+        :param int width: Width of the word to be drawn
+        :return: The updated x and y locations
+        :rtype: tuple(int, int)
+        """
         if x + width > self.PROMPT_SURF_WIDTH:
             y += self.SMALL_FONT_SIZE * 3 // 2
             x = 0
         return x, y
 
+    def draw_cursor(self, i, j, x, y):
+        """ A cursor will be drawin if the cursor location 
+        :param int i: The current word being drawn
+        :param int j: The current letter in the word being drawn
+        :param int x: Current horizontal location on display
+        :param int y: Current vertical location on display 
+        """
+        if i == self.game.word_idx and j == self.game.letter_idx:
+            cursor = pygame.Rect(x, y - self.SMALL_FONT_SIZE, 2, self.SMALL_FONT_SIZE * 4 // 3)
+            pygame.draw.rect(self.prompt_surf, self.WHITE, cursor)
+
     def display_score(self):
-        # Create and display the score surface and the play again instructions
+        """ Create and display the score screen to the display """
         self.dis.fill(self.BLUE_BACKGROUND)
 
         # Create score surface
@@ -153,7 +178,12 @@ class Gui:
 
     def write_line(self, text, font, surf, y):
         """ Write text to a surface using the given font.  Center the text 
-        on the surface and place at the given y value """
+        on the surface and place at the given y value 
+        :param str text: The text to be drawn on the surface
+        :param pygame.freetype.Font font: The font to be used
+        :param pygame.Surface surf: The surface to be drawn on
+        :param int y: The vertical location to be drawn at
+        """
         text_rect = font.get_rect(text)
         text_width = text_rect.width
         width = surf.get_size()[0]

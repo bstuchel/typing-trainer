@@ -2,9 +2,6 @@
 File: main.py
 
 This program runs the typing test application using pygame.
-
-To Do:
- - The game should load more text if the end of the prompt is reached
 """
 from enum import Enum
 from game import Game
@@ -22,6 +19,7 @@ class GameState(Enum):
 
 
 def main():
+    """ Set up contronl and flow of the application """
     pygame.init()
 
     game = Game()
@@ -41,7 +39,12 @@ def main():
 
 
 def play(game, gui):
-    # Initialize game loop
+    """ Start the typing test game
+    :param game.Game game: Game object
+    :param gui.Gui gui: Gui object
+    :return: The game state upon quitting application or finishing the game
+    :rtype: GameState
+    """
     game.new_game()
     gui.set_game(game)
     time_started = False
@@ -49,16 +52,14 @@ def play(game, gui):
     # Game loop
     while True:
         for event in pygame.event.get():
-            
             if event.type == pygame.QUIT:
-                # Change game state to QUIT
                 return GameState.QUIT
 
             if event.type == TIME_EVENT:
                 # One second has passed, update timer
                 game.tick_timer()
                 if game.time_remaining <= 0:
-                    # Move to SCORE game state
+                    # Game over
                     pygame.time.set_timer(TIME_EVENT, 0)
                     game.end_game()
                     gui.display_score()
@@ -67,8 +68,6 @@ def play(game, gui):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
                     game.backspace()
-                    cur_ch = game.get_char()
-                    if cur_ch: cur_ch.set_default()
                 else:
                     if not time_started:
                         # Start the game timer
@@ -76,19 +75,21 @@ def play(game, gui):
                         time_started = True
                     game.type_char(event.unicode)
 
-            # Update display
             gui.update_display()
 
 
 def score(gui):
-    # Display results screen
+    """ Display the results screen
+    :param gui.Gui gui: Gui object
+    :return: The game state upon quitting application or starting new game
+    :rtype: GameState
+    """
     gui.display_score()
 
     # Result screen loop
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                # Change game state to QUIT
                 return GameState.QUIT
 
             if event.type == pygame.KEYDOWN:
